@@ -41,4 +41,3 @@ def to_lab_pixels(img):
     pixels = color.rgb2lab(pixels)
     
     return pixels
-    
