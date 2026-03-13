@@ -23,20 +23,24 @@ def score_harmony(hues, template):
 
     return max(score, score_mirrored)
 
-def get_scores(pixels, labels, centers): # assumes pixels is in rgb colour space
+def get_scores(pixels, labels, centers_rgb):
+    # pixels: use same colour space used for clustering (used for silhouette, davies_bouldin, calinski_harabasz)
+    # centers_rgb: must be in RGB 0-1 (used for harmony and ratio calculations)
     scores = {}
+
+    idx = np.random.choice(len(pixels), min(10000, len(pixels)), replace=False)
     
     # get model scores
-    scores['silhouette'] = float(silhouette_score(pixels, labels))
-    scores['davies_bouldin'] = float(davies_bouldin_score(pixels, labels))
+    scores['silhouette'] = float(silhouette_score(pixels[idx], labels[idx]))
+    scores['davies_bouldin'] = float(davies_bouldin_score(pixels[idx], labels[idx]))
     scores['calinski_harabasz'] = float(calinski_harabasz_score(pixels, labels))
-
+    
     percentages = np.bincount(labels) / len(labels) * 100
     size_order = np.argsort(percentages)[::-1]
     percentages = percentages[size_order].copy()
-    centers = centers[size_order].copy()
+    centers_rgb = centers_rgb[size_order].copy()
 
-    hues = color.rgb2hsv(centers.reshape(1, -1, 3) / 255.0).reshape(-1, 3)[:, 0] * 360
+    hues = color.rgb2hsv(centers_rgb.reshape(1, -1, 3)).reshape(-1, 3)[:, 0] * 360
 
     harmony_scores = {}
 

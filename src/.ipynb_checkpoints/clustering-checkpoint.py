@@ -13,8 +13,13 @@ def cluster_pixels(pixels, algorithm='kmeans', k=3, **kwargs):
     else:
         raise ValueError(f"Unknown algorithm: {algorithm}. Choose from 'kmeans', 'gmm', 'agglomerative'")
 
-    model.fit(pixels)
-    labels = model.predict(pixels)
+    if algorithm == 'agglomerative':
+        model.fit(pixels)
+        labels = model.labels_
+    else:
+        model.fit(pixels)
+        labels = model.predict(pixels)
+
     centers = np.array([pixels[labels == i].mean(axis=0) for i in range(k)]) # computed consistently across all algorithms for comparability
     
     return labels, centers
